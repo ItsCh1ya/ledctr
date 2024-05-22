@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:image_editor_plus/image_editor_plus.dart';
+import 'package:ledctrl/domain/entity/module_info.dart';
+import 'package:ledctrl/get_it.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final selectedModule = getIt<SelectedModule>().module;
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Не подключенно'),
+          title: Text((selectedModule == null) ? 'Не подключенно' : '${selectedModule!.name}'), // name if not null
           centerTitle: false,
           actions: [
             IconButton(
