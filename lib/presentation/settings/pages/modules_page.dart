@@ -4,6 +4,7 @@ import 'package:dart_eval/dart_eval_bridge.dart';
 import 'package:dart_eval/stdlib/core.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ledctrl/domain/entity/module_info.dart';
 import 'package:ledctrl/get_it.dart';
@@ -36,31 +37,47 @@ class _ModulesSettingsPageState extends State<ModulesSettingsPage> {
                   builder: (context, state) {
                     //fetch modules
                     if (state is ModuleInfoLoaded && state.modules.isNotEmpty) {
-                      return ListView.builder(
-                        itemCount: state.modules.length,
-                        itemBuilder: (context, index) {
-                          return InkWell(
-                            onTap: () {
-                              getIt<SelectedModule>().module = state.modules[index];
-                              Navigator.of(context).popUntil(ModalRoute.withName('/'));
-                            },
-                            child: Ink(
-                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    children: [
-                                      Text(state.modules[index].name, style: Theme.of(context).textTheme.titleLarge),
-                                      Text(state.modules[index].description, style: Theme.of(context).textTheme.bodyMedium),
-                                    ],
+                      return Column(
+                        children: [
+                          Flexible(
+                            child: ListView.builder(
+                              itemCount: state.modules.length,
+                              itemBuilder: (context, index) {
+                                return InkWell(
+                                  onTap: () {
+                                    getIt<SelectedModule>().module = state.modules[index];
+                                    Navigator.of(context).popUntil(ModalRoute.withName('/'));
+                                  },
+                                  child: Ink(
+                                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(state.modules[index].name, style: Theme.of(context).textTheme.titleLarge),
+                                            Text(state.modules[index].description, style: Theme.of(context).textTheme.bodyMedium),
+                                          ],
+                                        ),
+                                        Text("${state.modules[index].size.height}x${state.modules[index].size.width}", style: Theme.of(context).textTheme.titleLarge,),
+                                      ],
+                                    ),
                                   ),
-                                  Text("${state.modules[index].size.height}x${state.modules[index].size.width}", style: Theme.of(context).textTheme.titleLarge,),
-                                ],
-                              ),
+                                );
+                              },
                             ),
-                          );
-                        },
+                          ),
+                          OutlinedButton(
+                              onPressed: () async {
+                                await pickModule(context);
+                              },
+                              child: Text('Открыть из памяти устройства')),
+                          ElevatedButton( // TODO: implement download from internet
+                              onPressed: () {},
+                              child: Text('Загрузить из интернета')),
+                          SizedBox(height: 20),
+                        ],
                       );
                     } else if (state is ModuleInfoLoaded && state.modules.isEmpty) {
                       return Column(

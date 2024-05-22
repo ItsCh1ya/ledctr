@@ -14,14 +14,14 @@ void sendImage(Function callback, List<List<int>> bitmap) {
 
 void getInfo(Function callback) {
   callback({
-    'name': 'Test module',
+    'name': 'Second test module',
     'description': 'Simulated device',
     'version': '1.0.0',
     'author': 'LedCtrl',
     'colorDeph': 0,
     'size': {
-      'width': 9,
-      'height': 9
+      'width': 128,
+      'height': 64
     },
   });
 }
