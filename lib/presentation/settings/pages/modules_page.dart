@@ -4,12 +4,12 @@ import 'package:dart_eval/dart_eval_bridge.dart';
 import 'package:dart_eval/stdlib/core.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ledctrl/domain/entity/module_info.dart';
 import 'package:ledctrl/get_it.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../../home/pages/home_page.dart';
 import '../bloc/module_info_bloc.dart';
 
 class ModulesSettingsPage extends StatefulWidget {
@@ -23,6 +23,20 @@ class _ModulesSettingsPageState extends State<ModulesSettingsPage> {
   Directory? _directory;
   List<FileSystemEntity>? _modulesFilePaths;
   bool loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // create modules folder if not exist
+    getApplicationDocumentsDirectory().then((value) {
+      _directory = Directory('${value.path}/modules');
+      _directory?.exists().then((value) {
+        if (!value) {
+          _directory?.create();
+        }
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

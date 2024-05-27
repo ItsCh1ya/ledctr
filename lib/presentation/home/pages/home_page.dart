@@ -1,16 +1,30 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:image_editor_plus/image_editor_plus.dart';
 import 'package:ledctrl/domain/entity/module_info.dart';
 import 'package:ledctrl/get_it.dart';
+import 'package:path_provider/path_provider.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+import 'image_page.dart';
+
+class HomePage extends StatefulWidget {
+  final SelectedModule? selectedModule;
+  const HomePage({super.key, this.selectedModule});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  SelectedModule? selectedModule = getIt<SelectedModule>();
 
   @override
   Widget build(BuildContext context) {
-    final selectedModule = getIt<SelectedModule>().module;
+    ModuleInfo? selectedModule = getIt<SelectedModule>().module;
     return Scaffold(
         appBar: AppBar(
           title: Text((selectedModule == null) ? 'Не подключенно' : '${selectedModule!.name}'), // name if not null
@@ -18,15 +32,19 @@ class HomePage extends StatelessWidget {
           actions: [
             IconButton(
               icon: const Icon(Icons.settings),
-              onPressed: () {
-                Navigator.of(context).pushNamed('settings');
+              onPressed: () async {
+                final value = await Navigator.of(context).pushNamed('settings');
+                setState(() {
+                  selectedModule = getIt<SelectedModule>().module;
+                });
               },
             )
           ],
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: MasonryGridView.count(
+          child: (selectedModule == null) ? Center(child: Text("Подключитесь к модулю в настройках")) :
+          MasonryGridView.count(
             crossAxisCount: 2,
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
@@ -61,8 +79,9 @@ class HomePage extends StatelessWidget {
               } else if (index == 1) {
                 return InkWell(
                   borderRadius: BorderRadius.circular(20),
-                  onTap: () {
-                    
+                  onTap: () async {
+                    Directory docsDir = await getApplicationDocumentsDirectory();
+                    FilePickerResult? result = await FilePicker.platform.pickFiles();
                   },
                   child: Ink(
                     height: 150,
@@ -74,15 +93,17 @@ class HomePage extends StatelessWidget {
                   ),
                 );
               }
-              int height = (index % 2 == 0) ? 200 : 300;
+              int height = selectedModule!.size.height;
+              int width = selectedModule!.size.width;
+              ImageProvider src = NetworkImage((index % 2 == 0) ? "https://loremflickr.com/$width/$height?id=$index" : "https://loremflickr.com/$height/$width?id=$index");
               return ClipRRect(
                 borderRadius: BorderRadius.circular(20),
-                child: Image.network(
-                  "https://loremflickr.com/200/$height?id=$index",
-                ),
+                child: GestureDetector(child: Image(image: src, fit: BoxFit.fill,), onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ImagePage(image: src)));
+                },)
               );
             },
-          ),
-        ));
+        ))
+    );
   }
 }

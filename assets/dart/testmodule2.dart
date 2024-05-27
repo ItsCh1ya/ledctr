@@ -1,4 +1,6 @@
-void sendImage(Function callback, List<List<int>> bitmap) {
+import 'dart:typed_data';
+
+void sendImage(Function callback, Uint8List bitmap) {
   callback({
     'body': {
       'image': bitmap
