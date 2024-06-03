@@ -8,6 +8,8 @@ import 'package:image_editor_plus/image_editor_plus.dart';
 import 'package:ledctrl/domain/entity/module_info.dart';
 import 'package:ledctrl/get_it.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:image/image.dart' as img;
+
 
 import 'image_page.dart';
 
@@ -26,20 +28,26 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     ModuleInfo? selectedModule = getIt<SelectedModule>().module;
     return Scaffold(
-        appBar: AppBar(
-          title: Text((selectedModule == null) ? 'Не подключенно' : '${selectedModule!.name}'), // name if not null
-          centerTitle: false,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: () async {
-                final value = await Navigator.of(context).pushNamed('settings');
-                setState(() {
-                  selectedModule = getIt<SelectedModule>().module;
-                });
-              },
-            )
-          ],
+        appBar: PreferredSize(
+          preferredSize: AppBar().preferredSize,
+          child: Hero(
+            tag: AppBar,
+            child: AppBar(
+              title: Text((selectedModule == null) ? 'Не подключенно' : '${selectedModule.name}'), // name if not null
+              centerTitle: false,
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.settings),
+                  onPressed: () async {
+                    final value = await Navigator.of(context).pushNamed('settings');
+                    setState(() {
+                      selectedModule = getIt<SelectedModule>().module;
+                    });
+                  },
+                )
+              ],
+            ),
+          ),
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -53,10 +61,10 @@ class _HomePageState extends State<HomePage> {
                 return InkWell(
                   borderRadius: BorderRadius.circular(20),
                   onTap: () async {
-                    Uint8List bytes = (await NetworkAssetBundle(Uri.parse('https://loremflickr.com/200/300'))
-                      .load('https://loremflickr.com/200/300'))
-                      .buffer
-                      .asUint8List();
+                    //FIXME: adds white lines for some reason
+                    img.Image blankImage = img.Image(width: selectedModule!.size.width, height: selectedModule!.size.height);
+                    Uint8List bytes = Uint8List.fromList(img.encodePng(blankImage));
+
 
                     final editedImage = await Navigator.push(
                       context,
@@ -66,6 +74,12 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     );
+
+                    if (editedImage != null) {
+                      ImageProvider imageProvider = ResizeImage(MemoryImage(editedImage), width: selectedModule!.size.width, height: selectedModule!.size.height);
+                      
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => ImagePage(image: imageProvider)));
+                    }
                   },
                   child: Ink(
                     height: 150,
@@ -81,7 +95,13 @@ class _HomePageState extends State<HomePage> {
                   borderRadius: BorderRadius.circular(20),
                   onTap: () async {
                     Directory docsDir = await getApplicationDocumentsDirectory();
-                    FilePickerResult? result = await FilePicker.platform.pickFiles();
+                    FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.image);
+                    if (result != null) {
+                      File file = File(result.files.single.path!);
+                      Uint8List bytes = file.readAsBytesSync();
+                      ImageProvider imageProvider = MemoryImage(bytes);
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => ImagePage(image: imageProvider)));
+                    }
                   },
                   child: Ink(
                     height: 150,
@@ -96,11 +116,14 @@ class _HomePageState extends State<HomePage> {
               int height = selectedModule!.size.height;
               int width = selectedModule!.size.width;
               ImageProvider src = NetworkImage((index % 2 == 0) ? "https://loremflickr.com/$width/$height?id=$index" : "https://loremflickr.com/$height/$width?id=$index");
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: GestureDetector(child: Image(image: src, fit: BoxFit.fill,), onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ImagePage(image: src)));
-                },)
+              return Hero(
+                tag: src,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: GestureDetector(child: Image(image: src, fit: BoxFit.fill,), onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ImagePage(image: src)));
+                  },)
+                ),
               );
             },
         ))

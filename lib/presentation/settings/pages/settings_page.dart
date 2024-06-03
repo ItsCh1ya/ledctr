@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'about_page.dart';
 import 'modules_page.dart';
+import 'theme_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -20,9 +21,8 @@ class SettingsPage extends StatelessWidget {
             SettingsTile(icon: Icons.extension, title: 'Модули', subtitle: 'Подключение к матрице', page: ModulesSettingsPage()),
             SettingsTile(icon: Icons.image, title: 'Редактор', subtitle: 'Настройки редактора',),
             SettingsTile(icon: Icons.drag_indicator, title: 'Матрица', subtitle: 'Настройки матрицы'),
-            SettingsTile(icon: Icons.light_mode, title: 'Тема', subtitle: 'Настройки темы',),
-            SettingsTile(icon: Icons.info, title: 'О приложении', subtitle: 'Информация о приложении',),
-            SettingsTile(icon: Icons.logout, title: 'Выход', subtitle: 'Выход из аккаунта',),
+            SettingsTile(icon: Icons.light_mode, title: 'Тема', subtitle: 'Настройки темы', page: ThemePage()),
+            SettingsTile(icon: Icons.info, title: 'О приложении', subtitle: 'Информация о приложении', page: AboutPage()),
           ]
         ),
       )

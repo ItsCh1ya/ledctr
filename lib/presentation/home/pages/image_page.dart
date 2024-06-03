@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 import 'package:dart_eval/dart_eval_bridge.dart';
 import 'package:dart_eval/stdlib/typed_data.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:ledctrl/domain/entity/module_info.dart';
 import 'package:ledctrl/get_it.dart';
 import 'package:path_provider/path_provider.dart';
@@ -23,7 +26,7 @@ class _ImagePageState extends State<ImagePage> {
   Widget build(BuildContext context) {
     SelectedModule selectedModule = getIt<SelectedModule>();
     return Scaffold(
-        appBar: AppBar(title: const Text('Изображение')),
+        appBar: PreferredSize(child: Hero(child: AppBar(title: const Text('Изображение')), tag: AppBar,), preferredSize: AppBar().preferredSize,),
         floatingActionButton: FloatingActionButton(onPressed: () async {
           widget.image.getBytes(context).then((value) async {
           Directory docsDir = await getApplicationDocumentsDirectory();
@@ -34,7 +37,11 @@ class _ImagePageState extends State<ImagePage> {
           runtime.executeLib('package:module/main.dart', 'sendImage', [
             $Closure((runtime, target, args) {
               final reified = args[0]!.$reified;
-              print(reified);
+              print(reified['body']['image']);
+              Dio dio = Dio();
+              dio.options.connectTimeout = Duration(milliseconds:  reified['timeout']);
+              dio.options.contentType = Headers.jsonContentType;
+              dio.post(reified['url'], data: jsonEncode(reified['body']));
             }),
             $Uint8List.wrap(value!),
           ]);
@@ -44,14 +51,17 @@ class _ImagePageState extends State<ImagePage> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: SizedBox(
-                  width: double.infinity,
-                  child:  (isHorizontal) ? Image(
-                    image: widget.image,
-                    fit: BoxFit.cover,
-                  ) : Transform.rotate(angle: 90 * 3.14 / 180, child: Image(image: widget.image, fit: BoxFit.cover,)),
+              Hero(
+                tag: widget.image,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child:  (isHorizontal) ? Image(
+                      image: widget.image,
+                      fit: BoxFit.cover,
+                    ) : Transform.rotate(angle: 90 * 3.14 / 180, child: Image(image: widget.image, fit: BoxFit.cover,)),
+                  ),
                 ),
               )
             ]),
@@ -61,7 +71,7 @@ class _ImagePageState extends State<ImagePage> {
 }
 
 extension ImageTool on ImageProvider {
-  Future<Uint8List?> getBytes(BuildContext context, {ImageByteFormat format = ImageByteFormat.rawRgba}) async {
+  Future<Uint8List?> getBytes(BuildContext context, {ImageByteFormat format = ImageByteFormat.png}) async {
     final imageStream = resolve(createLocalImageConfiguration(context));
     final Completer<Uint8List?> completer = Completer<Uint8List?>();
     final ImageStreamListener listener = ImageStreamListener(
