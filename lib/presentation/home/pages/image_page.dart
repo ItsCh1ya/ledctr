@@ -37,7 +37,6 @@ class _ImagePageState extends State<ImagePage> {
           runtime.executeLib('package:module/main.dart', 'sendImage', [
             $Closure((runtime, target, args) {
               final reified = args[0]!.$reified;
-              print(reified['body']['image']);
               Dio dio = Dio();
               dio.options.connectTimeout = Duration(milliseconds:  reified['timeout']);
               dio.options.contentType = Headers.jsonContentType;

@@ -31,7 +31,8 @@ class _AboutPageState extends State<AboutPage> {
           children: [
             Text("Версия ${_packageInfo?.version}", style: Theme.of(context).textTheme.titleLarge),
             Text("Релиз ${_packageInfo?.buildNumber}", style: Theme.of(context).textTheme.titleLarge),
-            Text("Автор Я", style: Theme.of(context).textTheme.titleLarge),
+            Text("Автор Куделин Вадим", style: Theme.of(context).textTheme.titleLarge),
+            Text("k.vad2@yandex.ru", style: Theme.of(context).textTheme.titleLarge),
           ],
         ),
       ),
