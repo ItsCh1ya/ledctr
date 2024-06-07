@@ -58,7 +58,7 @@ class _ImagePageState extends State<ImagePage> {
               setState(() {
                 image = imgimage.imageProviderSync;
               });
-            }, child: Icon(Icons.edit),),
+            }, child: Icon(Icons.edit), heroTag: 'edit',),
             SizedBox(width: 10,),
             FloatingActionButton(onPressed: () async {
               image?.getBytes(context).then((value) async {
@@ -99,16 +99,19 @@ class _ImagePageState extends State<ImagePage> {
                   ),
                 ),
               )
-              : ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child:  (isHorizontal) ? Image(
-                      image: image!,
-                      fit: BoxFit.cover,
-                    ) : Transform.rotate(angle: 90 * 3.14 / 180, child: Image(image: image!, fit: BoxFit.cover,)),
+              : Hero(
+                tag: widget.image,
+                child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child:  (isHorizontal) ? Image(
+                        image: image!,
+                        fit: BoxFit.cover,
+                      ) : Transform.rotate(angle: 90 * 3.14 / 180, child: Image(image: image!, fit: BoxFit.cover,)),
+                    ),
                   ),
-                )
+              )
             ]),
           ),
         ));
