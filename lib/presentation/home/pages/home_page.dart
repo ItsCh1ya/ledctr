@@ -9,7 +9,7 @@ import 'package:ledctrl/domain/entity/module_info.dart';
 import 'package:ledctrl/get_it.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image/image.dart' as img;
-
+import 'package:flutter_image_converter/flutter_image_converter.dart';
 
 import 'image_page.dart';
 
@@ -63,8 +63,11 @@ class _HomePageState extends State<HomePage> {
                   onTap: () async {
                     //FIXME: adds white lines for some reason
                     img.Image blankImage = img.Image(width: selectedModule!.size.width, height: selectedModule!.size.height);
-                    Uint8List bytes = Uint8List.fromList(img.encodePng(blankImage));
-
+                    for (var pixel in blankImage) {
+                      pixel.setRgb(255, 255, 255);
+                    }
+                    blankImage.setPixelRgb(0, 0, 255, 255, 255);
+                    Uint8List bytes = await blankImage.pngUint8List;
 
                     final editedImage = await Navigator.push(
                       context,
