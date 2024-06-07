@@ -19,8 +19,6 @@ class SettingsPage extends StatelessWidget {
         child: Column(
           children: [
             SettingsTile(icon: Icons.extension, title: 'Модули', subtitle: 'Подключение к матрице', page: ModulesSettingsPage()),
-            SettingsTile(icon: Icons.image, title: 'Редактор', subtitle: 'Настройки редактора',),
-            SettingsTile(icon: Icons.drag_indicator, title: 'Матрица', subtitle: 'Настройки матрицы'),
             SettingsTile(icon: Icons.light_mode, title: 'Тема', subtitle: 'Настройки темы', page: ThemePage()),
             SettingsTile(icon: Icons.info, title: 'О приложении', subtitle: 'Информация о приложении', page: AboutPage()),
           ]
